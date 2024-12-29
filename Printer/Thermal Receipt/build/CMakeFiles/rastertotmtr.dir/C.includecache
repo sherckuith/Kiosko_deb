@@ -1,0 +1,30 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/VOLTA/Kiosko/Printer/Thermal Receipt/filter/TmThermalReceipt.c
+cups/ppd.h
+-
+cups/raster.h
+-
+signal.h
+-
+fcntl.h
+-
+errno.h
+-
+unistd.h
+-
+string.h
+-
+math.h
+-
+stdlib.h
+-
+limits.h
+-
+

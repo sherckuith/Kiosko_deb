@@ -1,0 +1,16 @@
+asyncio==3.4.3
+eventlet==0.38.2
+Flask==3.1.0
+Flask-SocketIO==5.4.1
+importlib_resources==6.4.5
+Jinja2==3.1.4
+pillow==11.0.0
+python-barcode==0.15.1
+python-engineio==4.10.1
+python-escpos==3.1
+python-socketio==5.11.4
+qrcode==8.0
+setuptools==75.6.0
+simple-websocket==1.1.0
+watchdog==6.0.0
+websockets==14.1

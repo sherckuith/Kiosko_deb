@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joy Challenge Display</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #000;
+        }
+        .slideshow-container {
+            position: relative;
+            max-width: 100%;
+            height: 100%;
+        }
+        .mySlides {
+            display: none;
+            width: 100%;
+            height: 100%;
+        }
+        .mySlides img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .print-button {
+            position: fixed;
+            bottom: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        .print-button:hover {
+            background-color: #45a049;
+        }
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 2em;
+            display: none;
+        }
+        .fade {
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out; /* Transición suave */
+        }
+        .show {
+            display: block; /* Mostrar la imagen actual */
+            opacity: 1; /* Asegúrate de que la imagen sea visible */
+            transition: opacity 0.5s ease-in-out; /* Transición suave */
+        }
+    </style>
+</head>
+<body>
+    <div class="loading">Cargando...</div>
+    <div class="slideshow-container">
+        {% if temp_imagenes %}
+            {% for imagen in temp_imagenes %}
+                <div class="mySlides temp-slide">
+                    <img src="{{ url_for('serve_temp_image', filename=imagen) }}?t={{timestamp}}" alt="{{ imagen }}">
+                </div>
+            {% endfor %}
+        {% endif %}
+        {% if imagenes %}
+            {% for imagen in imagenes %}
+                <div class="mySlides base-slide">
+                    <img src="{{ url_for('serve_image', filename=imagen) }}?t={{timestamp}}" alt="{{ imagen }}">
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+    <button class="print-button" id="printButton" style="display: none;" onclick="printCode()">IMPRIMIR COMPROBANTE</button>
+    <script>
+        let slideIndex = 0;
+        let slideInterval;
+        let tempSlideTime = {{ temp_image_time * 1000 }}; // Tiempo de imagen temporal en ms
+        let baseSlideTime = 5000; // Tiempo de imagen base en ms
+        let loadingDiv = document.querySelector('.loading');
+        let slides = document.getElementsByClassName("mySlides");
+    
+        function showSlides() {
+            loadingDiv.style.display = 'block'; // Mostrar el loading
+            for (let i = 0; i < slides.length; i++) {
+                slides[i].classList.remove('show'); // Ocultar la imagen
+            }
+            slideIndex++;
+            if (slideIndex > slides.length) {
+                slideIndex = 1;// Reiniciar el índice si supera el número de imágenes
+            }
+            if (slides.length > 0) {
+                slides[slideIndex - 1].classList.add('show'); // Mostrar la imagen actual
+                // Verificar si la imagen actual es una imagen temporal
+                if (slides[slideIndex - 1].classList.contains('temp-slide')) {
+                    document.getElementById('printButton').style.display = 'block'; // Mostrar el botón
+                } else {
+                    document.getElementById('printButton').style.display = 'none'; // Ocultar el botón
+                }
+            }
+            loadingDiv.style.display = 'none';
+            let currentSlide = slides[slideIndex - 1];
+            let slideTime = currentSlide.classList.contains('temp-slide') ? tempSlideTime : baseSlideTime;
+            slideInterval = setTimeout(showSlides, slideTime);
+        }
+    
+        function printCode() {
+            loadingDiv.style.display = 'block';
+            fetch('/printer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({}) // Enviar un JSON vacío si es necesario
+            })
+            .then(response => response.json())
+            .then(data => {
+                loadingDiv.style.display = 'none';
+                if (data.success) {
+                    alert('Código impreso correctamente');
+                } 
+            })
+            .catch(error => {
+                loadingDiv.style.display = 'none';
+                alert('Error en la solicitud: ' + error);
+            });
+        }
+    
+        function reloadPage() {
+            window.location.reload();
+        }
+    
+        window.onload = function() {
+            if (slides.length > 0) {
+                showSlides();
+            } else {
+                loadingDiv.textContent = 'No hay imágenes para mostrar.';
+                loadingDiv.style.display = 'block';
+            }
+            setInterval(reloadPage, 10000); // Recargar la página cada 10 segundos
+        };
+    </script>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script>
+        // Escuchar el evento para mostrar la imagen temporal
+        const socket = io();
+
+        socket.on('show_temp_image', function(data) {
+            clearTimeout(slideInterval); // Detener el ciclo de imágenes
+            let tempImagePath = data.path;
+
+            // Crear un nuevo contenedor para la imagen temporal
+            let tempSlide = document.createElement('div');
+            tempSlide.classList.add('mySlides', 'temp-slide');
+
+            let img = document.createElement('img');
+            img.src = tempImagePath + '?t=' + new Date().getTime(); // Evitar caché
+
+            // Esperar a que la imagen esté completamente cargada
+            img.onload = function() {
+                tempSlide.appendChild(img);
+                tempSlide.classList.add('show'); // Mostrar la imagen solo cuando esté lista
+                document.querySelector('.slideshow-container').prepend(tempSlide);
+                //reloadPage(); // Recargar la página para mostrar la imagen temporal    
+                // Configurar el tiempo de visualización de la imagen temporal
+                setTimeout(() => {
+                    tempSlide.remove(); // Eliminar la imagen temporal tras el tiempo asignado
+                    showSlides(); // Reanudar presentación
+                }, tempSlideTime);
+            };
+
+            img.onerror = function() {
+                console.error("Error al cargar la imagen temporal: ", tempImagePath);
+                showSlides(); // Reanudar presentación en caso de error
+            };
+        });
+    </script>
+</body>
+</html>

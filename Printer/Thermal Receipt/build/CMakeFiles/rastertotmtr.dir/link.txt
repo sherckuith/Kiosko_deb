@@ -1,0 +1,1 @@
+/usr/bin/cc -rdynamic CMakeFiles/rastertotmtr.dir/filter/TmThermalReceipt.c.o -o rastertotmtr  -lcupsimage -lcups 

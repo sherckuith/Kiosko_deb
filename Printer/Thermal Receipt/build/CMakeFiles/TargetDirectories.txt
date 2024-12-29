@@ -1,0 +1,3 @@
+/home/VOLTA/Kiosko/Printer/Thermal Receipt/build/CMakeFiles/rebuild_cache.dir
+/home/VOLTA/Kiosko/Printer/Thermal Receipt/build/CMakeFiles/edit_cache.dir
+/home/VOLTA/Kiosko/Printer/Thermal Receipt/build/CMakeFiles/rastertotmtr.dir

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Información del Sistema</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        pre { background: #f4f4f4; padding: 10px; border: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+    <h1>Información del Sistema</h1>
+    <h2>Versión del SO:</h2>
+    <pre>{{ info.os_info }}</pre>
+    <h2>Versión del Kernel:</h2>
+    <pre>{{ info.kernel_info }}</pre>
+    <h2>Información del CPU:</h2>
+    <pre>{{ info.cpu_info }}</pre>
+    <h2>Memoria:</h2>
+    <pre>{{ info.memory_info }}</pre>
+    <h2>Almacenamiento:</h2>
+    <pre>{{ info.disk_info }}</pre>
+    <h2>Dirección IP:</h2>
+    <pre>{{ info.ip_address }}</pre>
+    <h2>Versión del Firmware:</h2>
+    <pre>{{ info.firmware_version }}</pre>
+    <h2>Temperatura de la CPU:</h2>
+    <pre>{{ info.cpu_temp }}</pre>
+    <h2>Modelo de la Raspberry Pi:</h2>
+    <pre>{{ info.model_info }}</pre>
+</body>
+</html>
